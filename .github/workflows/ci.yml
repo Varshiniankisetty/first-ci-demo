@@ -27,17 +27,23 @@ jobs:
       - name: Run automated tests
         run: python -m unittest discover -v
 
+      - name: Build Docker image
+        run: docker build -t first-ci-demo:latest .
+
+      - name: Test Docker image
+        run: docker run --rm first-ci-demo:latest
+
       - name: Prepare release package
         run: |
           mkdir -p release
           cp result_logic.py release/
           cp test_result_logic.py release/
           cp README.md release/
+          cp Dockerfile release/
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
           name: first-ci-demo-release
           path: release/
-          if-no-files-found: error
           retention-days: 7
