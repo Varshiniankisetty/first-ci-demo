@@ -1,29 +1,43 @@
 
-name: First Python CI
+name: Python CI-CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  build-test-deliver:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get project code
-        uses: actions/checkout@v7
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Run automated tests
         run: python -m unittest discover -v
+
+      - name: Prepare release package
+        run: |
+          mkdir -p release
+          cp result_logic.py release/
+          cp test_result_logic.py release/
+          cp README.md release/
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-ci-demo-release
+          path: release/
+          if-no-files-found: error
+          retention-days: 7
